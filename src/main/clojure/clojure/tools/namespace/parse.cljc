@@ -126,3 +126,8 @@
   :require clauses but not :load."
   [decl]
   (set (mapcat deps-from-ns-form decl)))
+
+(defn filedeps-from-ns-decl
+  [decl]
+  (when (sequential? decl)
+    (some #(get % :clojure.tools.namespace.file/filedeps) decl)))

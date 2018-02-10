@@ -136,6 +136,10 @@
    ;; represent.
    :clojure.tools.namespace.file/filemap {}
 
+   ;; Added by clojure.tools.namespace.file: Map from source
+   ;; files (java.io.File) to other files depended on in the project path
+   :clojure.tools.namespace.file/filedeps {}
+
    ;; Added by clojure.tools.namespace.dir: Set of source files
    ;; (java.io.File) which have been seen by this dependency tracker;
    ;; used to determine when files have been deleted.

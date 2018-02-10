@@ -1,7 +1,8 @@
 (ns clojure.tools.namespace.dir-test
-  (:require [clojure.test :refer [deftest is]]
+  (:require [clojure.test :refer [deftest is testing]]
             [clojure.tools.namespace.test-helpers :as help]
-            [clojure.tools.namespace.dir :as dir])
+            [clojure.tools.namespace.dir :as dir]
+            [clojure.java.io :as io])
   (:import
    (java.io File)))
 
@@ -36,3 +37,26 @@
       (make-symbolic-link link dir)
       (is (= (::dir/files (dir/scan-dirs {} [dir]))
              (::dir/files (dir/scan-dirs {} [link])))))))
+
+(defn- touch [file]
+  (Thread/sleep 1500)               ;Setting file timestamp may have seconds precision, sleep before setting
+  (.setLastModified file (System/currentTimeMillis)))
+
+(deftest t-filedeps
+  (let [dir (help/create-temp-dir "t-filedeps")
+        filedep (.getCanonicalFile (help/create-file [(.getPath dir) "file.properties"] ["A Test File"]))
+        main-clj (.getCanonicalFile (help/create-source dir 'example.main :clj nil #{(.getPath filedep)}))
+
+        tracker (-> (dir/scan-dirs {} [dir])
+                    (assoc :clojure.tools.namespace.track/unload '()
+                           :clojure.tools.namespace.track/load '()))]
+
+    (testing "tracker reads filedep"
+      (is (= (list filedep)
+             (get-in tracker [:clojure.tools.namespace.file/filedeps main-clj]))))
+
+    (testing "modifying filedep reloads namespace"
+      (touch filedep)
+      (let [tracker1 (dir/scan-dirs tracker [dir])]
+        (is (= '(example.main)
+               (get-in tracker1 [:clojure.tools.namespace.track/load])))))))

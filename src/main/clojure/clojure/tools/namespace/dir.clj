@@ -27,8 +27,14 @@
        (mapcat #(find/find-sources-in-dir % platform))
        (map #(.getCanonicalFile ^File %))))
 
+(defn- modified? [tracker ^File file]
+  (let [filedeps (get-in tracker [::file/filedeps file])]
+    (or (< (::time tracker 0)
+           (reduce max (.lastModified file) (map #(.lastModified %) filedeps)))
+        (not-every? #(.exists %) filedeps))))
+
 (defn- modified-files [tracker files]
-  (filter #(< (::time tracker 0) (.lastModified ^File %)) files))
+  (filter #(modified? tracker %) files))
 
 (defn- deleted-files [tracker files]
   (set/difference (::files tracker #{}) (set files)))
