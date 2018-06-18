@@ -1,3 +1,5 @@
+This is a fork of tools.namespace to support [TNS-48](https://dev.clojure.org/jira/browse/TNS-48)
+
 clojure.tools.namespace
 ========================================
 
