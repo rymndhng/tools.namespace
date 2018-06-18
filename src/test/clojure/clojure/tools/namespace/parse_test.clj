@@ -1,7 +1,8 @@
 (ns clojure.tools.namespace.parse-test
   (:use [clojure.test :only (deftest is)]
         [clojure.tools.namespace.parse :only (deps-from-ns-decl
-                                              read-ns-decl)]))
+                                              read-ns-decl
+                                              filedeps-from-ns-decl)]))
 
 (def ns-decl-prefix-list
   '(ns com.example.one
@@ -179,3 +180,15 @@
                      read-ns-decl
                      deps-from-ns-decl)]
       (is (= #{'clojure.string} actual)))))
+
+(def reader-filedeps
+  "(ns com.examples.one
+     {:clojure.tools.namespace.file/filedeps #{\"foo.bar\"}}) ")
+
+(deftest t-reader-filedepsfiles
+  (let [actual (-> reader-filedeps
+                   java.io.StringReader.
+                   java.io.PushbackReader.
+                   clojure.tools.reader/read
+                   filedeps-from-ns-decl)]
+    (is (= #{"foo.bar"} actual))))

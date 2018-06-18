@@ -63,14 +63,20 @@
   declaration which :require's the dependencies (symbols). Optional
   contents written after the ns declaration as by write-contents."
   ([base-dir sym extension]
-   (create-source base-dir sym extension nil nil))
+   (create-source base-dir sym extension nil nil nil))
   ([base-dir sym extension dependencies]
-   (create-source base-dir sym extension dependencies nil))  
-  ([base-dir sym extension dependencies contents]
+   (create-source base-dir sym extension dependencies nil nil))
+  ([base-dir sym extension dependencies file-dependencies]
+   (create-source base-dir sym extension dependencies file-dependencies nil))
+  ([base-dir sym extension dependencies file-dependencies contents]
    (let [full-path (into [base-dir] (source-path sym extension))
-         ns-decl (if (seq dependencies)
-                   (list 'ns sym (list* :require dependencies))
-                   (list 'ns sym))]
+         ns-decl (remove nil?
+                         (list 'ns sym
+                               (when (seq dependencies)
+                                 (list* :require dependencies))
+
+                               (when (seq file-dependencies)
+                                 {:clojure.tools.namespace.file/filedeps file-dependencies})))]
      (create-file full-path (into [ns-decl] contents)))))
 
 (defn same-files?

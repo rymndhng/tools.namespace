@@ -57,15 +57,22 @@
   (file-with-extension? file clojurescript-extensions))
 
 ;;; Dependency tracker
+(defn- filedep->file [ns filedep]
+  (let [file (io/file filedep)]
+    (when-not (.exists file)
+      (prn :missing-filedep ns filedep))
+    (.getCanonicalFile file)))
 
 (defn- files-and-deps [files read-opts]
   (reduce (fn [m file]
             (if-let [decl (read-file-ns-decl file read-opts)]
               (let [deps (parse/deps-from-ns-decl decl)
-                    name (parse/name-from-ns-decl decl)]
+                    name (parse/name-from-ns-decl decl)
+                    filedeps (map #(filedep->file name %) (parse/filedeps-from-ns-decl decl))]
                 (-> m
                     (assoc-in [:depmap name] deps)
-                    (assoc-in [:filemap file] name)))
+                    (assoc-in [:filemap file] name)
+                    (assoc-in [:filedeps file] filedeps)))
               m))
           {} files))
 
@@ -78,10 +85,11 @@
   ([tracker files]
    (add-files tracker files nil))
   ([tracker files read-opts]
-   (let [{:keys [depmap filemap]} (files-and-deps files read-opts)]
+   (let [{:keys [depmap filemap filedeps]} (files-and-deps files read-opts)]
      (-> tracker
          (track/add depmap)
-         (update-in [::filemap] merge-map filemap)))))
+         (update-in [::filemap] merge-map filemap)
+         (update-in [::filedeps] merge-map filedeps)))))
 
 (defn remove-files
   "Returns an updated dependency tracker with files removed. The files
