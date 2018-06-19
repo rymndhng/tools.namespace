@@ -3,6 +3,10 @@
 
 ## 0.3.x series
 
+### Version 0.3.0-alpha5 on 18-June-2018
+
+  * Adds support for specifying non-clojure files as dependencies
+  
 ### Version 0.3.0-alpha4 on 25-Apr-2017
 
   * Fix [TNS-47]: Always use canonical directory paths when searching

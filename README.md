@@ -560,7 +560,19 @@ After an error, `refresh` will **not** attempt to recover symbol
 mappings and aliases for namespaces with `disable-unload!` or
 `disable-reload!` set.
 
+File Support
+---------------
 
+As of `0.3.0-alpha5`, your namespace can declare non-clojure sources as
+dependencies. This is useful when your namespace relies on other files for code
+generation.
+
+To do this, specify the list of files as dependencies in the namespace metadata:
+
+``` clojure
+(ns com.examples.one
+  {:clojure.tools.namespace.file/filedeps #{"resources/db.sql" "resources/db2.sql"}})
+```
 
 Developer Information
 ----------------------------------------
