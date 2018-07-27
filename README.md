@@ -1,4 +1,9 @@
-This is a fork of tools.namespace to support [TNS-48](https://dev.clojure.org/jira/browse/TNS-48)
+This is a fork of tools.namespace to support [TNS-48](https://dev.clojure.org/jira/browse/TNS-48). See [File Support](#file-support) section below.
+
+**NOTE**: To use this fork of `tools.namespace`, you **must** exclude all other
+versions of tools.namespace from your classpath.
+
+[![Clojars Project](https://img.shields.io/clojars/v/org.clojars.rymndhng/tools.namespace.svg)](https://clojars.org/org.clojars.rymndhng/tools.namespace)
 
 clojure.tools.namespace
 ========================================
